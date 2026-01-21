@@ -1,34 +1,37 @@
 ﻿# Tomato Segmentation PoC
 
-토마토 숙도(완숙/반숙/미숙) 판별과 질병 영역 탐지를 Segmentation 기반으로 수행하고, Streamlit 대시보드에서 오버레이 형태로 시각화하는 PoC입니다.
+토마토 숙도(완숙/반숙/미숙)와 질병 병반을 Segmentation 기반으로 탐지하고, 통합 결과를 이미지 오버레이와 웹 UI로 제공하는 PoC입니다.
 
 ## 개요
 
-- 숙도(열매)와 질병(잎/열매 병반) Segmentation 모델을 각각 독립 학습합니다.
-- 추론 시 두 모델 결과를 하나의 이미지로 합쳐 직관적으로 확인합니다.
-- 결과는 웹 대시보드에서 시각화합니다.
+- Laboro Tomato COCO를 3-class 숙도 라벨로 정리해 YOLOv8m-seg 학습.
+- PlantSeg Tomato LabelMe를 7-class 질병 라벨로 변환해 YOLOv11m-seg 학습.
+- MMSegmentation(SegNeXt) 파이프라인으로 질병 Segmentation 대안 학습.
+- YOLO + SAM2로 질병 경계 보정 및 통합 시각화.
+- Streamlit 앱으로 진단 UI 제공(ngrok 임시 공개 링크).
 
 ## 데이터셋
 
 - Laboro Tomato (COCO instance segmentation): https://www.kaggle.com/datasets/nexuswho/laboro-tomato
-  - 원본 6클래스(크기 + 숙도)유지
+  - 노트북에서 6클래스를 숙도 3클래스로 재매핑.
 - PlantSeg Tomato subset (LabelMe polygons): https://zenodo.org/records/13762907
-  - 다작물 질병 데이터셋에서 토마토만 선별한 서브셋입니다.
+  - 토마토 질병 7클래스(예: bacterial_leaf_spot, early_blight, late_blight 등).
 
-## 모델
+## 모델/기술
 
-- YOLOv8-seg: 베이스라인 Segmentation 모델.
-- YOLOv11-seg: 소형/복잡 객체에 유리한 개선형 모델.
-- SegNeXt: 병반 경계가 불규칙한 영역에 강한 Transformer 기반 모델.
+- YOLOv8m-seg: 숙도 Segmentation 학습.
+- YOLOv11m-seg: 질병 Segmentation 학습.
+- SegNeXt(MMSegmentation): 질병 Segmentation 대안.
+- SAM2: 질병 경계 정밀 보정.
+- Streamlit + ngrok: TomatoDoctor 웹 UI.
 
 ## 파이프라인
 
-1. 이미지 해상도 정규화.
-2. PlantSeg 토마토 서브셋을 COCO 포맷으로 변환.
-3. 숙도 모델과 질병 모델을 독립적으로 학습.
-4. 질병 학습 시 클래스 불균형 대응(가중치/오버샘플링/Focal loss).
-5. 단일 이미지에 두 모델을 추론하고 결과를 오버레이.
-6. Streamlit 대시보드에서 시각화.
+1. COCO/LabelMe 데이터를 YOLO/MMSegmentation 형식으로 변환.
+2. 숙도 모델(YOLOv8m-seg)과 질병 모델(YOLOv11m-seg 또는 SegNeXt)을 독립 학습.
+3. 추론 시 숙도 + 질병 결과를 하나의 이미지로 오버레이.
+4. 샘플 결과 이미지를 `result/`에 저장.
+5. Streamlit 앱에서 통합 진단 UI 제공(세션마다 URL 변경).
 
 ## 레포 구조
 
@@ -36,26 +39,36 @@
 .
 +-- notebook/
 |   +-- Laboro_yolov8m.ipynb
-|   +-- plantseg_v11.ipynb
-|   +-- Tomato_Final.ipynb
+|   +-- plantseg_yolov11.ipynb
+|   +-- SegNeXt(MMSegmentation).ipynb
+|   +-- TomatoDoctor(Lyolo+Pseg).ipynb
+|   +-- Tomato_Final(Lyolo+Pyolo).ipynb
 +-- result/
 |   +-- IMG_0986_analyzed.png
 |   +-- IMG_0987_analyzed.png
 |   +-- IMG_0988_analyzed.png
 |   +-- tomato_early_blight_1_analyzed.png
 |   +-- jpg/
-|       +-- (original JPG outputs)
+|       +-- IMG_0986_analyzed.jpg
+|       +-- IMG_0987_analyzed.jpg
+|       +-- IMG_0988_analyzed.jpg
+|       +-- tomato_early_blight_1_analyzed.jpg
 +-- LICENSE
 +-- README.md
 ```
 
-## 노트북
+## 노트북 요약 (기능/결과)
 
-- `notebook/Laboro_yolov8m.ipynb`: Laboro 숙도 Segmentation 학습(YOLOv8m).
-- `notebook/plantseg_v11.ipynb`: PlantSeg 토마토 질병 Segmentation 학습(YOLOv11-seg).
-- `notebook/Tomato_Final.ipynb`: 숙도+질병 통합 추론 및 오버레이 시각화("Tomato Doctor").
+| Notebook                                   | 기능                                                                          | 결과                                                             |
+| ------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `notebook/Laboro_yolov8m.ipynb`            | COCO 라벨 정리(3/4/5 → 0/1/2), 3클래스 YAML 생성, YOLOv8m-seg 학습            | 숙도 모델 `tomato_3class_REAL/weights/best.pt` 생성              |
+| `notebook/plantseg_yolov11.ipynb`          | LabelMe → YOLO-seg 변환, 데이터 검증, YOLOv11m-seg 학습, SAM2 하이브리드 세그 | 샘플 진단 결과: `IMG_1011.jpg`에서 `Late Blight` 감지 및 시각화  |
+| `notebook/SegNeXt(MMSegmentation).ipynb`   | LabelMe → MMSeg mask 변환, SegNeXt config 생성, 학습 실행                     | `work_dirs/segnext_tomato_final`에 체크포인트 생성               |
+| `notebook/TomatoDoctor(Lyolo+Pseg).ipynb`  | YOLO 숙도 + SegNeXt 질병 모델을 Streamlit UI로 통합, Gemini 요약/대처 안내    | ngrok 공개 URL 출력(실행 시점마다 변경)                          |
+| `notebook/Tomato_Final(Lyolo+Pyolo).ipynb` | YOLO 숙도/질병 + SAM2 정밀 분할 통합, 오버레이 이미지 저장                    | `/content/drive/MyDrive/cv2/analysis_results`에 분석 이미지 저장 |
 
 ## 결과
 
-- PNG 오버레이 결과는 `result/`에 저장됩니다.
-- 원본 JPG 출력은 `result/jpg/`에 보관됩니다.
+- 오버레이 PNG 결과는 `result/`에 저장됩니다.
+- 동일 결과의 JPG는 `result/jpg/`에 보관됩니다.
+- streamlit의 url 결과로 gemini의 안내를 받을 수 있습니다.
