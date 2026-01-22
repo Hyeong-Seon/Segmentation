@@ -1,14 +1,33 @@
-﻿# Tomato Segmentation PoC
+﻿# 🍅 Tomato Segmentation PoC
 
-토마토 숙도(완숙/반숙/미숙)와 질병 병반을 Segmentation 기반으로 탐지하고, 통합 결과를 이미지 오버레이와 웹 UI로 제공하는 PoC입니다.
+토마토의 숙도(완숙/반숙/미숙)와 질병 병반을 Segmentation 모델로 정밀 탐지하고,  
+분석 결과를 이미지 오버레이 및 직관적인 웹 UI로 제공하는 PoC 프로젝트입니다.
 
+<table>
+  <tr>
+    <td align="center">
+      <img src="Hyeong-Seon/Segmentation/result/Doctor_jpg/스크린샷 2026-01-22 오전 11.57.17.png" alt="웹 UI 화면" width="100%" />
+      <br />
+      <b>📸 Web UI </b>
+    </td>
+    <td align="center">
+      <img src="Hyeong-Seon/Segmentation/result/Doctor_jpg/스크린샷 2026-01-22 오전 11.57.05.png" alt="Segmentation 결과" width="100%" />
+      <br />
+      <b>🔍 Tomato Doctor Main 페이지</b>
+    </td>
+  </tr>
+</table>
+## 🚀 주요 기능
+- **다중 클래스 탐지**: 숙도 3단계 + 주요 질병 병반 동시 분석
+- **실시간 오버레이**: 원본 영상 위에 마스크를 합성하여 시각화
+- **Web Dashboard**: 사용자 친화적인 분석 결과 모니터링
 ## 개요
 
 - Laboro Tomato COCO를 3-class 숙도 라벨로 정리해 YOLOv8m-seg 학습.
 - PlantSeg Tomato LabelMe를 7-class 질병 라벨로 변환해 YOLOv11m-seg 학습.
 - MMSegmentation(SegNeXt) 파이프라인으로 질병 Segmentation 대안 학습.
 - YOLO + SAM2로 질병 경계 보정 및 통합 시각화.
-- Streamlit 앱으로 진단 UI 제공(ngrok 임시 공개 링크).
+- Streamlit 앱으로 진단 UI 제공.
 
 ## 데이터셋
 
