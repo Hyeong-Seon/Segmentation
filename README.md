@@ -77,15 +77,15 @@
 +-- README.md
 ```
 
-## 노트북 요약 (기능/결과)
+## 📒 노트북 요약
 
-| Notebook                                   | 기능                                                                          | 결과                                                             |
-| ------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `notebook/Laboro_yolov8m.ipynb`            | COCO 라벨 정리(3/4/5 → 0/1/2), 3클래스 YAML 생성, YOLOv8m-seg 학습            | 숙도 모델 `tomato_3class_REAL/weights/best.pt` 생성              |
-| `notebook/plantseg_yolov11.ipynb`          | LabelMe → YOLO-seg 변환, 데이터 검증, YOLOv11m-seg 학습, SAM2 하이브리드 세그 | 샘플 진단 결과: `IMG_1011.jpg`에서 `Late Blight` 감지 및 시각화  |
-| `notebook/SegNeXt(MMSegmentation).ipynb`   | LabelMe → MMSeg mask 변환, SegNeXt config 생성, 학습 실행                     | `work_dirs/segnext_tomato_final`에 체크포인트 생성               |
-| `notebook/TomatoDoctor(Lyolo+Pseg).ipynb`  | YOLO 숙도 + SegNeXt 질병 모델을 Streamlit UI로 통합, Gemini 요약/대처 안내    | ngrok 공개 URL 출력(실행 시점마다 변경)                          |
-| `notebook/Tomato_Final(Lyolo+Pyolo).ipynb` | YOLO 숙도/질병 + SAM2 정밀 분할 통합, 오버레이 이미지 저장                    | `/content/drive/MyDrive/cv2/analysis_results`에 분석 이미지 저장 |
+| Notebook | 주요 역할 | 산출물 |
+| :--- | :--- | :--- |
+| **`Laboro_yolov8m.ipynb`** | **[숙도 학습]** 토마토 숙도 3단계 분류 (YOLOv8m) | 숙도 탐지 모델 (`.pt`) |
+| **`plantseg_yolov11.ipynb`** | **[질병 학습 1]** 질병 탐지 및 SAM2 연동 (YOLOv11m) | 질병 탐지 모델 (`.pt`) |
+| **`SegNeXt(MMSegmentation).ipynb`** | **[질병 학습 2]** 정밀 분할을 위한 심화 모델 학습 (SegNeXt) | 고성능 분할 모델 (`.pth`) |
+| **`Tomato_Final(Lyolo+Pyolo).ipynb`** | **[통합 추론]** 숙도 + 질병 모델 + SAM2 결합 및 시각화 | 최종 분석 이미지 (Overlay) |
+| **`TomatoDoctor(Lyolo+Pseg).ipynb`** | **[웹 서비스]** Streamlit UI 구동 및 Gemini 진단 리포트 생성 | AI 진단 대시보드 URL |
 
 ## 결과
 
